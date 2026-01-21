@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Générateur de bloc dossier - GitHub Pages</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:'Open Sans',sans-serif;background:#f4f6fb;margin:0;padding:28px;color:#0b1a2b}
+    .wrap{max-width:800px;margin:0 auto}
+    h1{font-size:20px;margin-bottom:16px}
+    textarea, input[type=text]{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:10px}
+    button{background:#0d346d;color:#fff;border:0;padding:10px 16px;border-radius:8px;cursor:pointer;margin-top:10px}
+    .output{margin-top:20px;background:#fff;padding:12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Générateur de bloc HTML</h1>
+    <p>Entrez votre titre</p>
+    <input type="text" id="blockTitle" placeholder="Titre du bloc (optionnel)">
+    <p>Copiez le nom de votre article puis l'URL sur la ligne suivante</p>
+    <textarea id="input" placeholder="Exemple :\nNom de l'article 1\nhttps://lien1.com\n\nNom du l'article 2\nhttps://lien2.com"></textarea>
+    <button id="generateBtn">Générer le bloc HTML</button>
+
+    <div class="output" id="outputArea"></div>
+  </div>
+
+  <script>
+    function parseLines(raw){
+      const lines = raw.split(/\r?\n/).map(l=>l.trim()).filter(l=>l.length>0);
+      const items = [];
+      for(let i=0;i<lines.length;i+=2){
+        const title = lines[i];
+        const url = lines[i+1] && lines[i+1].match(/^https?:\/\//i) ? lines[i+1] : '';
+        items.push({title,url});
+      }
+      return items;
+    }
+
+    function buildHTML(items, blockTitle){
+      const divStyle = "font-family: 'Open Sans', sans-serif; font-size: 16px; line-height: 1.5; color: #000; background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(13,52,109,0.2); width: auto; margin: 16px;";
+      const titleHTML = blockTitle ? `<div style=\"font-weight:bold;margin-bottom:12px;\">${blockTitle}</div>` : '';
+      const rows = items.map(it => it.url ? `<div style=\"display:flex;justify-content:space-between;flex-wrap:wrap;margin:6px 0;\"><span>${it.title}</span><a href=\"${it.url}\" target=\"_blank\" style=\"color:#0d346d;text-decoration:underline\">Lire l'article</a></div>` : `<div style=\"margin:6px 0;\"><span>${it.title}</span></div>`).join('');
+      return `<div style=\"${divStyle}\">${titleHTML}${rows}</div>`;
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', ()=>{
+      const raw = document.getElementById('input').value;
+      const blockTitle = document.getElementById('blockTitle').value.trim();
+      const items = parseLines(raw);
+      const html = buildHTML(items, blockTitle);
+      document.getElementById('outputArea').innerHTML = html;
+      navigator.clipboard.writeText(html).then(()=>alert('Bloc HTML copié dans le presse-papiers.'));
+    });
+  </script>
+</body>
+</html>
