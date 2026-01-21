@@ -9,7 +9,7 @@
     body{font-family:'Open Sans',sans-serif;background:#f4f6fb;margin:0;padding:28px;color:#0b1a2b}
     .wrap{max-width:800px;margin:0 auto}
     h1{font-size:20px;margin-bottom:16px}
-    textarea, input[type=text]{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:10px;box-sizing: border-box;}
+    textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:10px;box-sizing: border-box;}
     button{background:#0d346d;color:#fff;border:0;padding:10px 16px;border-radius:8px;cursor:pointer;margin-top:10px;transition: opacity 0.3s;}
     button:disabled{opacity: 0.6; cursor: not-allowed;}
     .output{margin-top:20px;background:#fff;padding:12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
@@ -19,9 +19,6 @@
 <body>
   <div class="wrap">
     <h1>Générateur de bloc HTML</h1>
-    
-    <p>Titre du bloc</p>
-    <input type="text" id="blockTitle" placeholder="Titre du bloc (optionnel)">
     
     <p>Collez vos liens ici (un lien par ligne)</p>
     <textarea id="input" rows="8" placeholder="https://www.exemple.fr/article-1"></textarea>
@@ -47,25 +44,23 @@
       }
     }
 
-    // Fonction de construction du bloc (Structure HTML conservée)
-    function buildHTML(items, blockTitle) {
+    function buildHTML(items) {
       const divStyle = "font-family: 'Open Sans', sans-serif; font-size: 16px; line-height: 1.5; color: #000; background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(13,52,109,0.2); width: auto; margin: 16px;";
-      const titleHTML = blockTitle ? `<div style=\"font-weight:bold;margin-bottom:12px;\">${blockTitle}</div>` : '';
+      // Titre fixe "Notre dossier" en gras et plus gros (18px)
+      const titleHTML = `<div style="font-weight:bold; font-size:18px; margin-bottom:12px;">Notre dossier</div>`;
       
-      // Ici, on met le lien sur le texte et on ajoute le symbole ►
       const rows = items.map(it => `
-        <div style=\"margin:6px 0;\">
-          <span>► </span><a href=\"${it.url}\" target=\"_blank\" style=\"color:#0d346d;text-decoration:underline\">${it.title}</a>
+        <div style="margin:6px 0;">
+          <span>► </span><a href="${it.url}" target="_blank" style="color:#0d346d;text-decoration:underline">${it.title}</a>
         </div>`).join('');
 
-      return `<div style=\"${divStyle}\">${titleHTML}${rows}</div>`;
+      return `<div style="${divStyle}">${titleHTML}${rows}</div>`;
     }
 
     document.getElementById('generateBtn').addEventListener('click', async () => {
       const inputArea = document.getElementById('input');
       const btn = document.getElementById('generateBtn');
       const loader = document.getElementById('loaderStatus');
-      const blockTitle = document.getElementById('blockTitle').value.trim();
       
       const urls = inputArea.value.split(/\r?\n/).map(l => l.trim()).filter(l => l.startsWith('http'));
 
@@ -84,7 +79,7 @@
         results.push(metadata);
       }
 
-      const finalHTML = buildHTML(results, blockTitle);
+      const finalHTML = buildHTML(results);
       document.getElementById('outputArea').innerHTML = finalHTML;
 
       navigator.clipboard.writeText(finalHTML).then(() => {
