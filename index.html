@@ -45,7 +45,7 @@
     }
 
     function buildHTML(items) {
-      // Style ajouté pour le soulignement au survol uniquement
+      // Style pour le survol
       const styleTag = `
 <style>
   .dossier-link:hover { 
@@ -62,7 +62,7 @@
           <a href="${it.url}" 
              target="_blank" 
              class="dossier-link" 
-             style="color:#0000EE; text-decoration:none; cursor:pointer;">${it.title}</a>
+             style="color:#0000FF; text-decoration:none; cursor:pointer;">${it.title}</a>
         </div>`).join('');
 
       return `${styleTag}<div style="${divStyle}">${titleHTML}${rows}</div>`;
