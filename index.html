@@ -45,10 +45,12 @@
     }
 
     function buildHTML(items) {
-      // Ce bloc de style sera copié avec le HTML pour activer le survol
+      // Style ajouté pour le soulignement au survol uniquement
       const styleTag = `
 <style>
-  .dossier-link:hover { text-decoration: underline !important; }
+  .dossier-link:hover { 
+    text-decoration: underline !important; 
+  }
 </style>`;
 
       const divStyle = "font-family: 'Open Sans', sans-serif; font-size: 16px; line-height: 1.5; color: #000; background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(13,52,109,0.2); width: 100%; box-sizing: border-box; margin: 16px 0;";
@@ -60,7 +62,7 @@
           <a href="${it.url}" 
              target="_blank" 
              class="dossier-link" 
-             style="color:#0d346d; text-decoration:none; cursor:pointer;">${it.title}</a>
+             style="color:#0000EE; text-decoration:none; cursor:pointer;">${it.title}</a>
         </div>`).join('');
 
       return `${styleTag}<div style="${divStyle}">${titleHTML}${rows}</div>`;
