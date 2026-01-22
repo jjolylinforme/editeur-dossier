@@ -45,13 +45,14 @@
     }
 
     function buildHTML(items) {
-      // Largeur fixée à 100% et ajout de box-sizing pour éviter que le padding ne fasse déborder le bloc
-      const divStyle = "font-family: 'Open Sans', sans-serif; font-size: 16px; line-height: 1.5; color: #000; background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(13,52,109,0.2); width: 100%; box-sizing: border-box; margin: 16px 0;";
+      // Structure calquée exactement sur ton bloc contact (max-width: 600px)
+      const divStyle = "font-family: 'Open Sans', sans-serif; font-size: 16px; line-height: 1.5; color: #000; background: #fff; padding: 16px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(13,52,109,0.2); max-width: 600px; box-sizing: border-box;";
+      
       const titleHTML = `<div style="font-weight:bold; font-size:18px; margin-bottom:12px;">Notre dossier</div>`;
       
       const rows = items.map(it => `
         <div style="margin:6px 0;">
-          <span>► </span><a href="${it.url}" target="_blank" style="color:#0d346d; text-decoration:none;">${it.title}</a>
+          <span style="color: #0d346d;">► </span><a href="${it.url}" target="_blank" style="color:#0d346d; text-decoration:none;">${it.title}</a>
         </div>`).join('');
 
       return `<div style="${divStyle}">${titleHTML}${rows}</div>`;
