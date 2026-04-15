@@ -15,22 +15,17 @@
     .output{margin-top:20px;background:#fff;padding:15px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
     .loader { font-size: 14px; color: #0d346d; font-style: italic; margin-top: 5px; display: none; }
     pre { background: #f8f8f8; padding: 15px; border-radius: 5px; border: 1px solid #ddd; overflow-x: auto; font-size: 11px; white-space: pre-wrap; margin-top: 20px; }
-    .status-ok { color: green; font-size: 12px; }
-    .status-manual { color: orange; font-size: 12px; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Générateur de bloc HTML 4.0</h1>
-    
+    <h1>Générateur de bloc HTML 2.0</h1>
     <p>Collez vos liens ici (un par ligne) :</p>
     <textarea id="input" rows="8" placeholder="https://..."></textarea>
-    
     <button id="generateBtn">Générer le bloc</button>
-    <div id="loaderStatus" class="loader">Analyse des liens...</div>
+    <div id="loaderStatus" class="loader">Analyse des liens en cours...</div>
 
     <div id="resultContainer" style="display:none;">
-      <div id="statusLog"></div>
       <div class="output" id="outputPreview"></div>
       <p style="margin-top:20px;"><strong>Code HTML à copier :</strong></p>
       <pre id="outputCode"></pre>
@@ -38,41 +33,43 @@
   </div>
 
   <script>
-    // Nettoyer l'URL pour en faire un titre lisible si le titre échoue
-    function urlToTitle(url) {
+    // Nettoyage de l'URL pour créer un titre "lisible" par défaut
+    function cleanUrlAsTitle(url) {
       try {
-        let path = new URL(url).pathname;
-        if (path === "/" || path === "") return url;
-        let segment = path.split('/').filter(Boolean).pop();
-        return segment.replace(/-/g, ' ').replace(/_/g, ' ').replace(/\.html?$/i, '');
+        const urlObj = new URL(url);
+        let title = urlObj.pathname.split('/').filter(Boolean).pop() || urlObj.hostname;
+        title = title.replace(/-/g, ' ').replace(/_/g, ' ').replace(/\.html?$/i, '');
+        return title.charAt(0).toUpperCase() + title.slice(1);
       } catch(e) { return url; }
     }
 
     async function fetchMetadata(url) {
       try {
-        // Tentative via AllOrigins
+        // On utilise AllOrigins pour contourner les blocages CORS
         const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
         if (!response.ok) throw new Error();
         const data = await response.json();
+        
         const parser = new DOMParser();
         const doc = parser.parseFromString(data.contents, 'text/html');
         
-        const title = doc.querySelector('meta[property="og:title"]')?.getAttribute('content') || 
-                      doc.querySelector('title')?.innerText;
+        // Liste de recherche par priorité
+        const extractedTitle = 
+          doc.querySelector('meta[property="og:title"]')?.getAttribute('content') || 
+          doc.querySelector('meta[name="twitter:title"]')?.getAttribute('content') ||
+          doc.querySelector('meta[name="title"]')?.getAttribute('content') ||
+          doc.querySelector('title')?.innerText;
 
-        if (title && title.length > 3) {
-          return { title: title.trim(), url: url, auto: true };
+        if (extractedTitle && extractedTitle.trim().length > 3) {
+          return { title: extractedTitle.trim(), url: url };
         }
-        throw new Error("Titre vide");
+        throw new Error("Pas de titre trouvé");
 
       } catch (error) {
-        // ÉCHEC : Demande manuelle à l'utilisateur
-        let manualTitle = prompt(`Impossible de récupérer le titre pour :\n${url}\n\nEntrez un titre (ou laissez vide pour utiliser l'URL) :`);
-        return { 
-          title: manualTitle || urlToTitle(url), 
-          url: url, 
-          auto: !!manualTitle 
-        };
+        // En cas d'échec, on demande à l'utilisateur pour être sûr d'avoir un bon résultat
+        const fallback = cleanUrlAsTitle(url);
+        const manualTitle = prompt(`Le titre automatique a échoué pour :\n${url}\n\nQuel titre voulez-vous afficher ?`, fallback);
+        return { title: manualTitle || fallback, url: url };
       }
     }
 
@@ -96,7 +93,7 @@
       const resultContainer = document.getElementById('resultContainer');
       
       const urls = inputArea.value.split(/\r?\n/).map(l => l.trim()).filter(l => l.startsWith('http'));
-      if (urls.length === 0) return alert("Aucun lien valide");
+      if (urls.length === 0) return alert("Veuillez entrer des liens valides");
 
       btn.disabled = true;
       loader.style.display = "block";
@@ -115,8 +112,9 @@
       resultContainer.style.display = "block";
       btn.disabled = false;
 
+      // Copie auto
       navigator.clipboard.writeText(finalHTML);
-      alert("Bloc généré et copié !");
+      alert("Bloc généré ! Le code est copié dans le presse-papier.");
     });
   </script>
 </body>
